@@ -1,7 +1,10 @@
 [package]
 name = "graphql-normalize"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [dependencies]
+clap = "4.5.28"
+clap-stdin = "0.6.0"
+graphql-minify = "0.1.0"
 graphql-parser = "0.4.1"

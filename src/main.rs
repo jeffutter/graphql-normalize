@@ -1,22 +1,39 @@
+use clap::{Arg, ArgAction, Command};
+use clap_stdin::FileOrStdin;
 use graphql_parser::query::{
     self, Definition, Directive, Document, Selection, Value, VariableDefinition,
 };
 use std::fmt::Display;
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 {
-        eprintln!("Usage: {} <query_file>", args[0]);
-        std::process::exit(1);
-    }
+    let command = Command::new("graphql-normalize")
+        .arg(
+            Arg::new("path")
+                .default_value("-")
+                .required(false)
+                .value_parser(clap::value_parser!(FileOrStdin)),
+        )
+        .arg(Arg::new("minify").short('m').action(ArgAction::SetTrue))
+        .arg_required_else_help(false);
 
-    let query_content = std::fs::read_to_string(&args[1]).expect("Failed to read the file");
+    let matches = command.get_matches();
+
+    let path = matches.get_one::<FileOrStdin<String>>("path").unwrap();
+
+    let query_content: String = path.clone().contents().expect("Unable to read input");
     let document =
         query::parse_query::<String>(&query_content).expect("Failed to parse GraphQL query");
     let mut doc = Doc::new(document);
     doc.normalize();
 
-    println!("{}", doc);
+    if matches.get_flag("minify") {
+        let normalized = format!("{}", doc);
+        let minified = graphql_minify::minify(normalized).expect("Could not minify");
+
+        println!("{}", minified);
+    } else {
+        println!("{}", doc);
+    }
 }
 
 struct Doc<'a>(Document<'a, String>);

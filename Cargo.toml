@@ -1,10 +1,18 @@
 [package]
-name = "graphql-normalize"
-version = "0.1.1"
+name = "graphql-normalize-bin"
+version = "0.1.2"
 edition = "2021"
+authors = ["Jeffery Utter <jeff@jeffutter.com>"]
 
 [dependencies]
 clap = "4.5.28"
 clap-stdin = "0.6.0"
-graphql-minify = "0.1.0"
+graphql-normalize = { path = "graphql-normalize-lib" }
 graphql-parser = "0.4.1"
+
+[workspace]
+members = [ "graphql-normalize-lib" ]
+
+[[bin]]
+name = "graphql-normalize"
+path = "src/main.rs"
